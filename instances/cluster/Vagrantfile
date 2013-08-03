@@ -113,16 +113,44 @@ Vagrant.configure("2") do |config|
   #
   #   chef.validation_client_name = "ORGNAME-validator"
 
+  #install chef using latest chef client
+  config.omnibus.chef_version = :latest
+
   # multi-vm try
   config.vm.define :web do |web|
     web.vm.hostname = "web"
     web.vm.network :private_network, ip: "10.10.10.10"
     web.vm.network :forwarded_port, guest: 22, host: 2210
+    web.vm.network :forwarded_port, guest: 80, host: 8010
+    web.vm.provision :chef_solo do |chef|
+      chef.cookbooks_path = "../../chef/cookbooks"
+      chef.roles_path = "../../chef/roles"
+      chef.add_role "web"
+    end
   end
 
   config.vm.define :db do |db|
     db.vm.hostname = "db"
     db.vm.network :private_network, ip: "10.10.10.21"
     db.vm.network :forwarded_port, guest: 22, host: 2221
+    db.vm.provision :chef_solo do |chef|
+      chef.cookbooks_path = "../../chef/cookbooks"
+      chef.roles_path = "../../chef/roles"
+      chef.add_role "db"
+
+      ##node data
+      #The following attributes are randomly generated passwords handled in the mysql::server recipe, using the OpenSSL cookbook's secure_password helper method. These are set using the set_unless node attribute method, which allows them to be easily overridden e.g. in a role.
+      #
+      #node['mysql']['server_root_password'] - Set the server's root password
+      #node['mysql']['server_repl_password'] - Set the replication user 'repl' password
+      #node['mysql']['server_debian_password'] - Set the debian-sys-maint user password
+      chef.json = {
+        :mysql => {
+          :server_root_password => "vagrant",
+          :server_repl_password => "vagrant",
+          :server_debian_password => "vagrant"
+        }
+      }
+    end
   end
 end

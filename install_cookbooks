@@ -1,0 +1,7 @@
+#!/bin/bash
+#Created from mksh on 2013年 08月 03日 星期六 20:53:09 CST
+#Description: 
+
+for pkg in build-essential apache2 passenger_apache2;do
+  knife cookbook github install $pkg
+done
