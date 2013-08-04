@@ -2,6 +2,8 @@
 #Created from mksh on 2013年 08月 03日 星期六 20:53:09 CST
 #Description: 
 
-for pkg in build-essential apache2 passenger_apache2;do
-  knife cookbook github install $pkg
+pkgs=(build-essential apache2 passenger_apache2 openssl mysql database)
+for pkg in ${pkgs[*]};do
+  knife cookbook github install opscode-cookbook/$pkg
 done
+echo finished!
